@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Harish Sriram</title>
+		<!-- link to main stylesheet -->
+		<link rel="stylesheet" type="text/css" href="/css/main.css">
+	</head>
+	<body>
+		<nav>
+    		<ul>
+        		<li><a href="/">Home</a></li>
+        		<li><a href="/blog.html">Back</a></li>
+    		</ul>
+		</nav>
+		<div class="container">
+                        <p>Being a tester for nearly a couple of years now, what is the first thing I should take care of? Repetition of work. Everything which is a repetition is an overhead! Well, why wait then? Automate it ! All it takes is the time to automate once. Many of us know that Automation would save a lot of time. But is that all? Certainly not!
+
+I would like to share a small story on how automation provided a solution to a problem which I did not even know exactly. I mostly work on testing Linux on POWER. A package’s self-test failed due to lack of POWER architecture support in a network related python module. Seemed like a value (did not even know what the number is , thought it would be similar to a port number) was missed handling for POWER arch. I saw other architectures' values ranging from 200 to 400. My aim was to find the right number for POWER arch. But how? Without even knowing about what it is? How would I do that? Yes, Automation did the trick!
+
+All I did was, wrote two automated scripts. First, to install the python module with each value between 1 to 500. It narrowed down to 10 values with which installation worked. Second, to run the self-test of that package for each of the ten values. Wow! That is all it was. A value 350 is the only value the test passed with. Wow ! That made me a Python module patch! And yes it was accepted within a couple of hours ! (Check out the patch here).
+
+Two simple automated scripts it was, a solution for a problem which I wouldn’t even have solved without Automation. And yes, without much time spent!</p>
+		</div><!-- /.container -->
+		<footer>
+		</footer>
+	</body>
+</html>
