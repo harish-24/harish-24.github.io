@@ -1,7 +1,15 @@
+html, body {
+    height: 100%;
+}
+
 body {
     margin: 60px auto;
     width: 70%;
+    display: flex;
+    height: 85%;
+    flex-direction: column;
 }
+
 nav ul, footer ul {
     font-family:'Helvetica', 'Arial', 'Sans-Serif';
     padding: 0px;
@@ -28,14 +36,14 @@ p {
     line-height: 1.4em;
     color: #2F4F4F;
 }
-footer {
-    border-top: 1px solid #d5d5d5;
-    font-size: .8em;
-}
 
 ul.posts { 
     margin: 20px auto 40px; 
     font-size: 1.5em;
+}
+
+.container{
+    flex: 1 0 auto;
 }
 
 ul.posts li {
@@ -51,4 +59,19 @@ ul.posts li {
     margin-left: 0;
     list-style: none;
     font-size: 25px;
+}
+
+.site-footer {
+    flex-shrink: 0;
+    border-top: 1px solid #e8e8e8;
+    font-size: .8em;
+}
+
+.svgicon {
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+    fill: #828282;
+    padding-right: 5px;
+    vertical-align: text-top;
 }
