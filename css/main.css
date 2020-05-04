@@ -35,6 +35,7 @@ p {
     font-size: 1.5em;
     line-height: 1.4em;
     color: #2F4F4F;
+    font-family: 'BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";'
 }
 
 ul.posts { 
@@ -55,10 +56,27 @@ ul.posts li {
     color: #828282;
 }
 
+.special {
+    font-size: 20px;
+    background-color: #eef;
+}
+
 .post-list {
     margin-left: 0;
     list-style: none;
     font-size: 25px;
+}
+
+.post-list>li {
+    margin-bottom: 30px;
+}
+
+.highlighter-rouge .highlight {
+    background: #eef;
+}
+
+.highlight {
+    background: #fff;
 }
 
 .site-footer {
