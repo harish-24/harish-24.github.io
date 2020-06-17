@@ -1,0 +1,16 @@
+title: Harish Sriram
+email: harishsriram352@gmail.com
+description: >- # this means to ignore newlines until "baseurl:"
+  Blogs that talks about software testing on Linux related
+  to DRAM, Storage Class memory and much more.
+baseurl: "" # the subpath of your site, e.g. /blog
+url: "" # the base hostname & protocol for your site, e.g. http://example.com
+twitter_username: harishsriram24
+github_username:  harish-24
+google_analytics: UA-169820717-1
+
+# Build settings
+markdown: kramdown
+theme: minima
+plugins:
+  - jekyll-feed
