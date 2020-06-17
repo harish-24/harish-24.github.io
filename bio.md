@@ -8,7 +8,7 @@ permalink: /bio/
 
   [harishsriram352@gmail.com](mailto:harishsriram352@gmail.com)  || +919600092296 || [Linkedin](https://in.linkedin.com/in/harish-sriram-81a79890/)
 
-![]()
+![](https://avatars1.githubusercontent.com/u/17269437?s=400&u=5ba67277b01d2e0c3c8e0ceb72c0802cc122adc0&s=200&v=4)
 
 ## SUMMARY
 * Desgined and implemented Automation framework using Python for Linux Upstream Kernel CI on POWER machines.

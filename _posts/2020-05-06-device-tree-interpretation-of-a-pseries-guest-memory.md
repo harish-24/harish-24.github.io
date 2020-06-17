@@ -1,6 +1,6 @@
 # Device tree interpretation of a pseries guest memory
 
-## Introcudtion:
+## Introduction:
 
 This blog explains on how memory on a pseries guest is tracked from device-tree perspective. A pseries guest can be of different types, KVM or pHYP based PowerVM both using virtualization.
 

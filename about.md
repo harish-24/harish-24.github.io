@@ -4,7 +4,7 @@ title: Harish Sriram
 permalink: /about/
 ---
 
-![]()
+![](https://avatars1.githubusercontent.com/u/17269437?s=400&u=5ba67277b01d2e0c3c8e0ceb72c0802cc122adc0&s=200&v=4)
 
 Working as Systems Programmer in Linux Technology Center at IBM India.
 
