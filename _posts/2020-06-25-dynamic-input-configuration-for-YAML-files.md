@@ -19,7 +19,7 @@ If you take a look at the test cases, most often than not it has a YAML file ass
 
 3. Lacks branch level control
 
-All these are addressed with newer implementation [here](https://github.com/open-power-host-os/tests/pull/224/commits/687c9c6912990cfe443b290ee9974a442f391f0e).
+All these are addressed with newer implementation [here](https://github.com/open-power-host-os/tests/pull/228/files).
 
 Now we can see how this feature can be leveraged with an example.
 
@@ -53,19 +53,19 @@ With the mentioned patch we can provide inputs leaf nodes with different parent 
 input.txt
 ```
 [fstests]
-setup.skip_dangerous=False
-setup.fs_type.fs_ext4.exclude=2-15,304,205
-setup.fs_type.fs_xfs.exclude=1-10
-setup.fs_type.fs_xfs.gen_exclude=1,2
+setup/skip_dangerous=False
+setup/fs_type/fs_ext4/exclude="2-15,304,205"
+setup/fs_type/fs_xfs/exclude="1-10"
+setup/fs_type/fs_xfs/gen_exclude="1,2"
 ```
-Note that cfg has a section name `fstests` matching the suite `fstests.cfg`
+Note that cfg has a section name `fstests` matching the suite `fstests.cfg`. Also double-quotes are necessary for inputs that needs to be read as strings due to a limitation of --mux-inject in Avocado framework.
 
 When run with the above input file using `--input-file`, this makes sure that the yaml looks like
 
 ```cfg
 # xfstests.yaml
 setup:
-    skip_dangerous: false
+    skip_dangerous: False
     scratch_mnt: /mnt/scratch
     fs_type: !mux
         fs_ext4:
@@ -79,20 +79,20 @@ setup:
             gen_exclude: 1-10,30-45
             share_exclude: 1,2
 ```
-Thus eradicating the limitations specified above.
+Thus eradicating the limitations mentioned above.
 
 
 ## Using * Notation
 
-To enhance it further [this patch](https://github.com/open-power-host-os/tests/pull/224/commits/e022628d7ee02d916f36274e792a15a3f425b114) we also have an option to provide inputs matching multiple yaml files. This can be achieved through a regex like input through special character `*`.
+To enhance it further this patch also has an option to provide inputs matching multiple yaml files. This can be achieved through a regex like input through special character `*`.
 
 Lets see another example to explain this. In case `share_exclude` has to be updated for both the filesystem types, the following config would be able to achieve this
 
 ```
 [fstests]
-setup.skip_dangerous=False
-setup.fs_type.fs_ext4.exclude=2-15,304,205
-setup.fs_type.*.share_exclude=1,250
+setup/skip_dangerous=False
+setup/fs_type/fs_ext4/exclude="2-15,304,205"
+setup/fs_type/*/share_exclude="1,250"
 ```
 
 which translates to
@@ -129,52 +129,37 @@ Variant fs_xfs-disk-e0b0:    /run/setup/loop_type/disk, /run/setup/fs_type/fs_xf
 
 Without the decorator, achieving leaf level would be a cake walk especially with the [PyYaml](https://pyyaml.org/wiki/PyYAMLDocumentation) module. Just load the yaml as dictionary, replace the values in dictionary and dump it back.
 
-With the `!mux` decorator in place, a number of overrides becomes essential here. `yaml` object needs to be wrapped with a Loader object which inturn uses a `Constructor` handling the decorator so that yaml safely loads file contents to a dictionary. The `yaml.dump()` optinally takes a `Dumper` argument which can be enabled to dump the decorator at the right place through what is called `Representer`. This is to store/wrap the tree below the decorator and store it as is on the dictionary and restore back with the decorator. A `OverrideConstructor` wraps the contents of the tree and a `OverrideDumper` helps dumping back the data to the file with the decorator. This [link](https://github.com/open-power-host-os/tests/pull/224/files#diff-c7c73da3c9a0a695d49f36e0a69e713f) shows how the data is being wrapped and dumped with the Dumper.
+With the `!mux` decorator in place, the easier way is to leverage the `--mux-inject` option of avocado. The idea is to get the variants from the variants command for each of the given yaml and match it against the input file, thus arriving at a value key-value pair.
 
-```python
-class OverrideConstructor(yaml.constructor.SafeConstructor):
-    def __init__(self):
-        yaml.constructor.SafeConstructor.__init__(self)
+```bash
+# avocado variants -c -m tests/avocado-misc-tests/fs/xfstests.py.data/xfstests.yaml 
+Multiplex variants (2):
 
-    def construct_undefined(self, node):
-        data = getattr(self, 'construct_' + node.id)(node)
-        datatype = type(data)
-        wraptype = type('TagWrap_'+datatype.__name__, (datatype,), {})
-        wrapdata = wraptype(data)
-        wrapdata.tag = lambda: None
-        wrapdata.datatype = lambda: None
-        setattr(wrapdata, "wrapTag", node.tag)
-        setattr(wrapdata, "wrapType", datatype)
-        return wrapdata
+Variant fs_ext4-disk-bc2b:    /run/setup/loop_type/disk, /run/setup/fs_type/fs_ext4
+    /run/setup/fs_type/fs_ext4:fs  => ext4
+    /run/setup/loop_type:loop_size => 7GiB
+    /run/setup/loop_type:type      => loop
+    /run/setup:disk_mnt            => /mnt/loop-device
+    /run/setup:scratch_mnt         => /mnt/scratch
+    /run/setup:skip_dangerous      => True
+    /run/setup:test_mnt            => /mnt/test
 
-class OverrideLoader(OverrideConstructor, yaml.loader.SafeLoader):
-
-    def __init__(self, stream):
-        OverrideConstructor.__init__(self)
-        yaml.loader.SafeLoader.__init__(self, stream)
-
-class OverrideRepresenter(yaml.representer.SafeRepresenter):
-    def represent_data(self, wrapdata):
-        tag = False
-        if type(wrapdata).__name__.startswith('TagWrap_'):
-            datatype = getattr(wrapdata, "wrapType")
-            tag = getattr(wrapdata, "wrapTag")
-            data = datatype(wrapdata)
-        else:
-            data = wrapdata
-        node = super(OverrideRepresenter, self).represent_data(data)
-        if tag:
-            node.tag = tag
-        return node
-
-class OverrideDumper(OverrideRepresenter, yaml.dumper.SafeDumper):
-    def __init__(self, stream, default_style=None, default_flow_style=False,
-		 ...)
-        OverrideRepresenter.__init__(self, default_style=default_style,
-                                     default_flow_style=default_flow_style,
-                                     sort_keys=sort_keys)
+Variant fs_xfs-disk-e0b0:    /run/setup/loop_type/disk, /run/setup/fs_type/fs_xfs
+    /run/setup/fs_type/fs_xfs:fs   => xfs
+    /run/setup/loop_type:loop_size => 7GiB
+    /run/setup/loop_type:type      => loop
+    /run/setup:disk_mnt            => /mnt/loop-device
+    /run/setup:scratch_mnt         => /mnt/scratch
+    /run/setup:skip_dangerous      => True
+    /run/setup:test_mnt            => /mnt/test
 ```
 
-Note that the Constructor wrap the datatype of its tree as well to restore back properly.
+Once these values are obtained, it is just a matter of injecting them with the `--mux-inject` option in the following way.
+
+```
+$ avocado run avocado-misc-tests/io/disk/disk_info.py -m avocado-misc-tests/io/disk/disk_info.py.data/disk_info.yaml --mux-inject disk:"/dev/sda1"
+```
+
+In execution, this essentially takes the key-value pair and uses in the test job for execution. The same is being done dynamically for all the given inputs and hence achieving the goal. More details are available on the commit.
 
 Thank you for reading through and hope you have enjoyed what this blog explains!!
